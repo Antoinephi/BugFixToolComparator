@@ -16,7 +16,9 @@ def fixit(path):
 ###Astor
 
 def astor(dirname):
-	subprocess.call('mvn install -f ' + dirname + '/pom.xml', shell=True, timeout=300)
+	# subprocess.call('mvn clean test -f ' + dirname + '/pom.xml', shell=True, timeout=300)
+	# subprocess.call('java -cp astor-0.0.2-SNAPSHOT-jar-with-dependencies.jar fr.inria.main.evolution.MainjGenProg -location "' + dirname + '"', shell=True, timeout=300)	
+	subprocess.call('mvn install:install-file -Dfile= -f ' + dirname + '/pom.xml', shell=True, timeout=300)
 
 
 start_time = time.time()
