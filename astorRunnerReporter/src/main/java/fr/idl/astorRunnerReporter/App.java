@@ -19,12 +19,17 @@ public class App {
 	private static final String BLACKBOX_TEST = "BlackboxTest";
 	private static final String FILE_RESULT_NAME = "result-astor.txt";
 	private static final String FAIL_FILE_RESULT_NAME = "fail-result-astor.txt";
+	private static final String EXCEPTION_FILE_NAME = "log-exception.txt";
 	private static final String PACKAGE = "introclassJava";
 	private static final String MAVEN_CLASS_REPERTOIRE = "target/classes";
 	private static final String MAVEN_CLASS_TEST_REPERTOIRE = "target/test-classes";
 	private static final String OUTPUT_REPERTOIRE = "outputMutation";
 
-	private static final String INPUT_DATASET = File.separator + "home" + File.separator + "once" + File.separator + "Documents" + File.separator + "wk-spoon" + File.separator + "IntroClassJava" + File.separator + "dataset";
+	private static final String JGEN_MODE = "statement";
+	private static final String JKALI_MODE = "statement-remove";
+	private static final String INPUT_DATASET = File.separator + "home" + File.separator + "once" + File.separator
+			+ "Documents" + File.separator + "wk-spoon" + File.separator + "IntroClassJava" + File.separator
+			+ "dataset";
 	private static final String INPUT_DATASET_CHECKSUM = INPUT_DATASET + File.separator + "checksum";
 	private static final String INPUT_DATASET_DIGITS = INPUT_DATASET + File.separator + "digits";
 	private static final String INPUT_DATASET_GRADE = INPUT_DATASET + File.separator + "grade";
@@ -148,19 +153,26 @@ public class App {
 
 	public static void main(String[] args) throws Exception {
 
+		boolean jkali = false;
+		if (args.length > 0) {
+			if (args[0].equals("-jkali")) {
+				jkali = true;
+			} else {
+				System.out.println("argument possible: -jkali");
+				return;
+			}
+		}
+
 		int nbrProjectOnlyBlackFix = 0;
 		int nbrProjectOnlyWhiteFix = 0;
 		int nbrProjectWithBlackAndWhiteFix = 0;
 		int nbrProject = 0;
-		int nbrProjetWithoutFail =0;
-		for (String folder : findProjectFolder(INPUT_DATASET_CHECKSUM)) {
+		int nbrProjetWithoutFail = 0;
+
+		for (String folder : findProjectFolder(INPUT_DATASET)) {
 			if (!folder.endsWith("/")) {
 				folder += "/";
 			}
-//    	String folder =args[0];
-//    	if(!folder.endsWith("/")){
-//    		folder+="/";
-//    	}
 			nbrProject += 1;
 			TestLauncher testLauncher = new TestLauncher();
 
@@ -175,27 +187,33 @@ public class App {
 			int nbrWhiteFailInit = testLauncher.runTests(blackTestCurrent, repertoireClasseName,
 					repertoireClasseTestName);
 
-			String ClasseTestFail="";
-			if(nbrBlackFailInit < 1 && nbrBlackFailInit < 1){
-				nbrProjetWithoutFail+=1;
+			String ClasseTestFail = "";
+			if (nbrBlackFailInit < 1 && nbrBlackFailInit < 1) {
+				nbrProjetWithoutFail += 1;
 				continue;
 			}
-			
-			if(nbrWhiteFailInit > 0 ){
-				ClasseTestFail+=whiteTestCurrent;
-			}
-			if(nbrBlackFailInit > 0){
-				if(!ClasseTestFail.equals("")){
-					ClasseTestFail+=":";
-				}
-				ClasseTestFail+=blackTestCurrent;
-			}
-			
-			String[] AstorArgs = { "-location", folder, "-package", "introclassJava", "-dependencies",
-					"/home/once/Documents/wk-spoon/astor_exec/junit-4.11.jar", "-failing",
-					ClasseTestFail };
 
-			AstorMain.main(AstorArgs);
+			if (nbrWhiteFailInit > 0) {
+				ClasseTestFail += whiteTestCurrent;
+			}
+			if (nbrBlackFailInit > 0) {
+				if (!ClasseTestFail.equals("")) {
+					ClasseTestFail += ":";
+				}
+				ClasseTestFail += blackTestCurrent;
+			}
+
+			String[] AstorArgs = { "-location", folder, "-package", "introclassJava", "-dependencies",
+					"/home/once/Documents/wk-spoon/astor_exec/junit-4.11.jar", "-failing", ClasseTestFail, "-mode",
+					jkali == true ? JKALI_MODE : JGEN_MODE };
+			for (String chaine : AstorArgs) {
+				System.out.println(chaine);
+			}
+			try {
+				AstorMain.main(AstorArgs);
+			} catch (Exception e) {
+				addLigneToResult("exception on project " + folder + "\n " + e.getMessage(), EXCEPTION_FILE_NAME);
+			}
 
 			if (nbrBlackFailInit > 0 || nbrWhiteFailInit > 0) {
 				if (checkFixFound(OUTPUT_REPERTOIRE)) {
@@ -206,22 +224,16 @@ public class App {
 					} else if (nbrWhiteFailInit > 0 && nbrBlackFailInit > 0) {
 						nbrProjectWithBlackAndWhiteFix += 1;
 					}
-					addLigneToResult(
-							"FIXED B[" + nbrBlackFailInit + "] W[" + nbrWhiteFailInit + "] " + folder + "\n",
+					addLigneToResult("FIXED B[" + nbrBlackFailInit + "] W[" + nbrWhiteFailInit + "] " + folder + "\n",
 							FILE_RESULT_NAME);
-				} else {
-					addLigneToResult(
-							"fail to fix B[" + nbrBlackFailInit + "] W[" + nbrWhiteFailInit + "] " + folder+ "\n",
-							FAIL_FILE_RESULT_NAME);
 				}
 			}
 			deleteOutPutFolder();
 		}
-		
-		addLigneToResult(
-				"project[" + nbrProject + "]project without fail["+nbrProjetWithoutFail+ "] Fixed OnlyBlack[" + nbrProjectOnlyBlackFix + "] OnlyWhite["
-						+ nbrProjectOnlyWhiteFix + "] whiteAndBlack[" + nbrProjectWithBlackAndWhiteFix + "]\n",
-				FILE_RESULT_NAME);
+
+		addLigneToResult("project[" + nbrProject + "]project without fail[" + nbrProjetWithoutFail
+				+ "] Fixed OnlyBlack[" + nbrProjectOnlyBlackFix + "] OnlyWhite[" + nbrProjectOnlyWhiteFix
+				+ "] whiteAndBlack[" + nbrProjectWithBlackAndWhiteFix + "]\n", FILE_RESULT_NAME);
 
 	}
 

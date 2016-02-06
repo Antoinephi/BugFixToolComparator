@@ -21,14 +21,6 @@ def nopol(dirname):
 	subprocess.call('java -jar  ../nopol/nopol/target/nopol-0.0.3-SNAPSHOT-jar-with-dependencies.jar -p ../nopol/nopol/lib/z3/z3_for_linux -s ' + dirname + ' -c ' + dirname + '/target/classes:' + dirname +'/target/test-classes:junit-4.11.jar', shell=True, timeout=300)	
 
 
-###Astor
-
-def astor(dirname):
-	# subprocess.call('mvn clean test -f ' + dirname + '/pom.xml', shell=True, timeout=300)
-	# subprocess.call('java -cp astor-0.0.2-SNAPSHOT-jar-with-dependencies.jar fr.inria.main.evolution.MainjGenProg -location "' + dirname + '"', shell=True, timeout=300)	
-	subprocess.call('mvn install:install-file -Dfile= -f ' + dirname + '/pom.xml', shell=True, timeout=300)
-
-
 start_time = time.time()
 
 # argv[1] = IntroClassJava dir's path

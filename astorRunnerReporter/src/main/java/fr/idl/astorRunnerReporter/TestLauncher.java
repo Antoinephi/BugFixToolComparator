@@ -24,9 +24,9 @@ public class TestLauncher {
 			ClassLoader classLoader = getClassLoader(repertoireClasse,repertoireClasseTest);
 			JUnitCore junit = new JUnitCore();
 			Result results = junit.run(classLoader.loadClass(classeName));
-			for(Failure fail : results.getFailures()){
-				System.out.println(fail.getTrace());
-			}
+//			for(Failure fail : results.getFailures()){
+//				System.out.println(fail.getTrace());
+//			}
 			return results.getFailures() != null ? results.getFailures().size() : 0;
 		}catch(Exception e){
 			return -1;
