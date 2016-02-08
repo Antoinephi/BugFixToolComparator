@@ -4,7 +4,7 @@ import os
 import subprocess
 import time
 
-##TODO : mvn install nopol pour générer le nouveau jar nopol
+##TODO : mvn install nopol pour le nouveau jar nopol
 
 ###Fixit
 
