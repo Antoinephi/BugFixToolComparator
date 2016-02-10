@@ -12,6 +12,9 @@ def fixit(path):
 	print(path)
 	subprocess.call('java -jar fixit-1-jar-with-dependencies.jar ' + path, shell=True, timeout=300)
 
+def fixit_black(path):
+	print(path)
+	subprocess.call('java -jar fixit-1-jar-with-dependencies.jar ' + path+' black', shell=True, timeout=300)
 
 ###Nopol
 
@@ -71,7 +74,10 @@ for dirname, dirnames, filenames in os.walk(sys.argv[1]):
 	for subdirname in dirnames:
 		if subdirname == 'src' :
 			if sys.argv[2] == '-fixit' or sys.argv[2] == '-all':
-				fixit(os.path.join(dirname, subdirname))
+				if len(sys.argv) > 3 and sys.argv[3] == '-black':
+					fixit_black(os.path.join(dirname, subdirname))
+				else:
+					fixit(os.path.join(dirname, subdirname))
 			if sys.argv[2] == '-astor' or sys.argv[2] == '-all':
 				astor(dirname)
 			if sys.argv[2] == '-nopol' or sys.argv[2] == '-all':
